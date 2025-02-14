@@ -27,9 +27,10 @@ $app->get('/', function(Request $request, Response $response, $args) {
 
 $app->get('/{componente}/{controlador}/{operacion}', function(Request $request, Response $response, $args) {
 
-    print_r($args);
-
-    Bd::table("tabla")->select('*')->where("asdfasdf")->orderBy("afdsf");
+    $ConexionBD = ConexionBD::obtenerInstancia('34.66.228.199', 'catorres', 'y<SjEU]YSDusQ#z1');
+    $sicam_principal = $ConexionBD->conectar('sicam_principal');
+    $respuesta = $sicam_principal->select('CamaraColaboradores', '*', ['colaboradorID' => [51, 570]]);
+    print_r($respuesta);
     
     return $response;
 });
