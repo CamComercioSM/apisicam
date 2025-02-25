@@ -1,16 +1,27 @@
 <?php
-require_once  __DIR__.'/../vendor/autoload.php';
 
 /**
  * Autoloader personalizado para cargar clases desde las carpetas definidas.
  */
 spl_autoload_register(function ($nombreClase) {
-    $directorio = __DIR__ . '/sistema/'; // Ruta donde están las clases
-    $archivo = $directorio . $nombreClase . '.php';
+    $carpetas = [
+        DIR_LIBS . '/sistema/',
+    ];
 
-    if (file_exists($archivo)) {        
-        require_once $archivo;
+    $nombreClase = str_replace('\\', '/', $nombreClase) . '';    
+    $rutasExploradas = [];
+    foreach ($carpetas as $directorioBase) {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directorioBase, RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $archivo) {
+            $rutaActual = $archivo->getPathname();
+            $rutasExploradas[] = $rutaActual;
+            if (basename($rutaActual, '.php') === $nombreClase) {                
+                include_once $rutaActual;
+                return;
+            }            
+        }
     }
-
-
 });

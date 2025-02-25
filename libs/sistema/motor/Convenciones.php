@@ -1,6 +1,6 @@
 <?php
 
-class Convenciones
+class Convenciones 
 {
     /**
      * Convierte el nombre de una clase en el nombre de la tabla en plural (PascalCase -> PascalCase en plural)
@@ -71,7 +71,7 @@ class Convenciones
             '/(or)$/i' => '$1es',       // Ejemplo: Colaborador -> Colaboradores
             '/$/i' => 's',              // Si no coincide con ninguna regla, solo agrega 's'
         ];
-        
+
         foreach ($reglas as $patron => $reemplazo) {
             if (preg_match($patron, $nombre)) {
                 return preg_replace($patron, $reemplazo, $nombre);
@@ -93,7 +93,7 @@ class Convenciones
             '/(ores)$/i' => 'or',      // Ejemplo: Colaboradores -> Colaborador
             '/s$/i' => '',             // Quita la 's' final si no coincide con otra regla
         ];
-        
+
         foreach ($reglas as $patron => $reemplazo) {
             if (preg_match($patron, $nombre)) {
                 return preg_replace($patron, $reemplazo, $nombre);
