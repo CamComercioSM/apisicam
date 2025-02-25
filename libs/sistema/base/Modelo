@@ -1,42 +1,119 @@
 <?php
 
-use Medoo\Medoo;
-
-class Modelo extends BaseDatos
+class Modelo
 {
     protected $tabla;
-    protected $usuario_id;
+    protected $conexion;
+    protected $atributos = [];
 
-    public function __construct($tabla, $usuario_id = null)
+    public function __construct($datos = [])
     {
-        parent::__construct();
-        $this->tabla = $tabla;
-        $this->usuario_id = $usuario_id;
+        $this->conexion = BaseDatos::obtenerConexion();
+        $this->tabla = Convenciones::convertirClaseATabla(strtolower((new \ReflectionClass($this))->getShortName()), true);  // Tabla en plural
+
+        if (isset($datos['id'])) {
+            // Intentar cargar datos desde la BD
+            $registro = $this->conexion->get($this->tabla, '*', ['id' => $datos['id']]);
+            if ($registro) {
+                $this->atributos = $registro; // Cargar datos de la BD
+            } else {
+                $this->atributos['id'] = $datos['id']; // Si no existe, se almacena el id para futura inserción
+            }
+        } else {
+            // Si no hay id, simplemente se inicializa el objeto con los datos dados
+            $this->atributos = $datos;
+        }
     }
 
-    public function insertar(array $datos)
+    public function __set($campo, $valor)
     {
-        $datos['usuario_creo'] = $this->usuario_id;
-        $datos['fecha_creacion'] = date('Y-m-d H:i:s');
-        return $this->insert($this->tabla, $datos);
+        $this->atributos[$campo] = $valor;
     }
 
-    public function actualizar(array $datos, array $condiciones)
+    public function __get($campo)
     {
-        $datos['usuario_actualizo'] = $this->usuario_id;
-        $datos['fecha_actualizacion'] = date('Y-m-d H:i:s');
-        return $this->update($this->tabla, $datos, $condiciones);
+        return $this->atributos[$campo] ?? null;
     }
 
-    public function eliminar(array $condiciones)
+    public function guardar()
     {
-        $datos['usuario_elimino'] = $this->usuario_id;
-        $datos['fecha_eliminacion'] = date('Y-m-d H:i:s');
-        return $this->update($this->tabla, $datos, $condiciones);
+        if (isset($this->atributos['id']) && $this->existe()) {
+            return $this->actualizar();
+        } else {
+            return $this->insertar();
+        }
     }
 
-    public function obtener($condiciones = [])
+    protected function insertar()
     {
-        return $this->select($this->tabla, '*', $condiciones);
+        $this->atributos['fecha_creacion'] = date('Y-m-d H:i:s');
+        $this->conexion->insert($this->tabla, $this->atributos);
+        $this->atributos['id'] = $this->conexion->id();
+        return true;
+    }
+
+    protected function actualizar()
+    {
+        $this->atributos['fecha_actualizacion'] = date('Y-m-d H:i:s');
+        return $this->conexion->update($this->tabla, $this->atributos, ['id' => $this->atributos['id']]);
+    }
+
+    public function eliminar()
+    {
+        if (!isset($this->atributos['id'])) {
+            return false;
+        }
+        $this->atributos['fecha_eliminacion'] = date('Y-m-d H:i:s');
+        return $this->conexion->update($this->tabla, $this->atributos, ['id' => $this->atributos['id']]);
+    }
+
+    public static function todos()
+    {
+        $instancia = new static();
+        $datos = $instancia->conexion->select($instancia->tabla, '*');
+        return array_map(fn($row) => new static($row), $datos);
+    }
+
+    private function existe()
+    {
+        return $this->conexion->has($this->tabla, ['id' => $this->atributos['id']]);
+    }
+
+    // Método para las relaciones "pertenceA"
+    public function pertenceA($modelo, $campo)
+    {
+        $tablaRelacionada = (new $modelo)->tabla;
+        $idRelacionado = $this->{$campo};
+        $registroRelacionado = $this->conexion->get($tablaRelacionada, '*', ['id' => $idRelacionado]);
+
+        if ($registroRelacionado) {
+            return new $modelo($registroRelacionado);
+        }
+
+        return null;
+    }
+
+    // Método para las relaciones "tieneMuchos"
+    public function tieneMuchos($modelo, $campo)
+    {
+        $tablaRelacionada = (new $modelo)->tabla;
+        $idRelacionado = $this->atributos['id'];
+        $registrosRelacionados = $this->conexion->select($tablaRelacionada, '*', [$campo => $idRelacionado]);
+
+        return array_map(fn($registro) => new $modelo($registro), $registrosRelacionados);
+    }
+
+    // Método para las relaciones "tieneUno"
+    public function tieneUno($modelo, $campo)
+    {
+        $tablaRelacionada = (new $modelo)->tabla;
+        $idRelacionado = $this->{$campo};
+        $registroRelacionado = $this->conexion->get($tablaRelacionada, '*', ['id' => $idRelacionado]);
+
+        if ($registroRelacionado) {
+            return new $modelo($registroRelacionado);
+        }
+
+        return null;
     }
 }

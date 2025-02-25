@@ -21,13 +21,39 @@ $app->get('/info', function (Request $request, Response $response, $args) {
 
 $app->get('/', function (Request $request, Response $response, $args) {
     $response->getBody()->write('Esta es la ruta base de la api');
+
+    // Ejemplo de uso
+    $tabla = Convenciones::convertirClaseATabla('ColaboradorCargo');
+    echo $tabla;  // Salida esperada: 'ColaboradoresCargos'
+
+    $modelo = Convenciones::convertirTablaAClase('ColaboradoresCargos');
+    echo $modelo; // Salida esperada: 'ColaboradorCargo'
+
+    $primaryKey = Convenciones::clavePrimaria('ColaboradoresCargos');
+    echo $primaryKey; // Salida esperada: 'colaboradorCargoID'
+
+    $campoAuditoria = Convenciones::campoAuditoria('ColaboradoresCargos', 'CREA');
+    echo $campoAuditoria; // Salida esperada: 'colaboradorCargoFCHCREA'
+
+    $campoUsuario = Convenciones::campoUsuario('ColaboradoresCargos', 'MODIFICA');
+    echo $campoUsuario; // Salida esperada: 'colaboradorCargoUSRMODIFICA'
+
+    $campoEstado = Convenciones::campoEstado('ColaboradoresCargos');
+    echo $campoEstado; // Salida esperada: 'colaboradorCargoESTADO'
+
+
+    // $respuesta = BaseDatos::select(
+    //     'sicam_principal.CamaraColaboradores',
+    //     '*',
+    //     ['CamaraColaboradores.colaboradorID' => [51, 570]]
+    // );
+    // print_r($respuesta);
+
     return $response;
 });
 
 $app->get('/{componente}/{controlador}/{operacion}', function (Request $request, Response $response, $args) {
 
-    $respuesta = BaseDatos::select('CamaraColaboradores', '*', ['colaboradorID' => [51, 570]]);
-    print_r($respuesta);
 
     return $response;
 });

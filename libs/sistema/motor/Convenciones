@@ -1,0 +1,104 @@
+<?php
+
+class Convenciones
+{
+    /**
+     * Convierte el nombre de una clase en el nombre de la tabla en plural (PascalCase -> PascalCase en plural)
+     */
+    public static function convertirClaseATabla($nombreClase)
+    {
+        return self::pluralizar($nombreClase);
+    }
+
+    /**
+     * Convierte el nombre de la tabla en el nombre del modelo en singular
+     */
+    public static function convertirTablaAClase($nombreTabla)
+    {
+        return self::singularizar($nombreTabla);
+    }
+
+    /**
+     * Genera el nombre de la clave primaria
+     */
+    public static function clavePrimaria($nombreTabla)
+    {
+        return self::singularizar($nombreTabla) . 'ID';
+    }
+
+    /**
+     * Genera el nombre de la clave foránea
+     */
+    public static function claveForanea($nombreTabla)
+    {
+        return self::singularizar($nombreTabla) . 'ID';
+    }
+
+    /**
+     * Genera el nombre de un campo de auditoría basado en la acción
+     */
+    public static function campoAuditoria($nombreTabla, $accion)
+    {
+        return strtolower(self::singularizar($nombreTabla)) . 'FCH' . strtoupper($accion);
+    }
+
+    /**
+     * Genera el nombre de un campo de usuario basado en la acción
+     */
+    public static function campoUsuario($nombreTabla, $accion)
+    {
+        return strtolower(self::singularizar($nombreTabla)) . 'USR' . strtoupper($accion);
+    }
+
+    /**
+     * Genera el nombre del campo estado
+     */
+    public static function campoEstado($nombreTabla)
+    {
+        return strtolower(self::singularizar($nombreTabla)) . 'ESTADO';
+    }
+
+    /**
+     * Pluraliza un nombre en PascalCase (Colaborador -> Colaboradores, Cargo -> Cargos)
+     */
+    private static function pluralizar($nombre)
+    {
+        // Reglas básicas de pluralización para palabras comunes
+        $reglas = [
+            '/(s|x|z)$/i' => '$1es',   // Ejemplo: Cruz -> Cruces
+            '/(ch|sh)$/i' => '$1es',   // Ejemplo: Archivo -> Archivos
+            '/([^aeiou])y$/i' => '$1ies', // Ejemplo: Usuario -> Usuarios
+            '/(or)$/i' => '$1es',       // Ejemplo: Colaborador -> Colaboradores
+            '/$/i' => 's',              // Si no coincide con ninguna regla, solo agrega 's'
+        ];
+        
+        foreach ($reglas as $patron => $reemplazo) {
+            if (preg_match($patron, $nombre)) {
+                return preg_replace($patron, $reemplazo, $nombre);
+            }
+        }
+        return $nombre . 's'; // Regla por defecto
+    }
+
+    /**
+     * Singulariza un nombre en PascalCase (Colaboradores -> Colaborador, Cargos -> Cargo)
+     */
+    private static function singularizar($nombre)
+    {
+        // Reglas básicas de singularización
+        $reglas = [
+            '/(s|x|z)es$/i' => '$1',    // Ejemplo: Cruces -> Cruz
+            '/(ch|sh)es$/i' => '$1',   // Ejemplo: Archivos -> Archivo
+            '/([^aeiou])ies$/i' => '$1y', // Ejemplo: Usuarios -> Usuario
+            '/(ores)$/i' => 'or',      // Ejemplo: Colaboradores -> Colaborador
+            '/s$/i' => '',             // Quita la 's' final si no coincide con otra regla
+        ];
+        
+        foreach ($reglas as $patron => $reemplazo) {
+            if (preg_match($patron, $nombre)) {
+                return preg_replace($patron, $reemplazo, $nombre);
+            }
+        }
+        return rtrim($nombre, 's'); // Regla por defecto
+    }
+}
