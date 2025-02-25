@@ -1,0 +1,42 @@
+<?php
+
+use Medoo\Medoo;
+
+class Modelo extends BaseDatos
+{
+    protected $tabla;
+    protected $usuario_id;
+
+    public function __construct($tabla, $usuario_id = null)
+    {
+        parent::__construct();
+        $this->tabla = $tabla;
+        $this->usuario_id = $usuario_id;
+    }
+
+    public function insertar(array $datos)
+    {
+        $datos['usuario_creo'] = $this->usuario_id;
+        $datos['fecha_creacion'] = date('Y-m-d H:i:s');
+        return $this->insert($this->tabla, $datos);
+    }
+
+    public function actualizar(array $datos, array $condiciones)
+    {
+        $datos['usuario_actualizo'] = $this->usuario_id;
+        $datos['fecha_actualizacion'] = date('Y-m-d H:i:s');
+        return $this->update($this->tabla, $datos, $condiciones);
+    }
+
+    public function eliminar(array $condiciones)
+    {
+        $datos['usuario_elimino'] = $this->usuario_id;
+        $datos['fecha_eliminacion'] = date('Y-m-d H:i:s');
+        return $this->update($this->tabla, $datos, $condiciones);
+    }
+
+    public function obtener($condiciones = [])
+    {
+        return $this->select($this->tabla, '*', $condiciones);
+    }
+}

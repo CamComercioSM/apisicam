@@ -12,3 +12,5 @@
 [2025-02-14 18:27:52] Excepción: Method not allowed. Must be one of: POST en C:\Users\jpllinas\Documents\DesarrolloWEB\SICAM_API\public_html\apisicam\vendor\slim\slim\Slim\Middleware\RoutingMiddleware.php línea 79
 [2025-02-14 18:28:12] Excepción: Class "Bd" not found en C:\Users\jpllinas\Documents\DesarrolloWEB\SICAM_API\public_html\apisicam\index.php línea 32
 [2025-02-14 18:28:18] Excepción: Class "Bd" not found en C:\Users\jpllinas\Documents\DesarrolloWEB\SICAM_API\public_html\apisicam\index.php línea 32
+[2025-02-24 21:13:09] Excepción: Not found. en C:\Users\jpllinas\Documents\DesarrolloWEB\SICAM_API\public_html\apisicam\vendor\slim\slim\Slim\Middleware\RoutingMiddleware.php línea 76
+[2025-02-24 21:17:22] Excepción: Call to undefined method Slim\Psr7\Response::withJson() en C:\Users\jpllinas\Documents\DesarrolloWEB\SICAM_API\public_html\apisicam\index.php línea 43
